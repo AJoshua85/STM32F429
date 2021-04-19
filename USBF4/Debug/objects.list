@@ -1,0 +1,7 @@
+"Drivers/Src/stm32F429_gpio_driver.o"
+"Drivers/Src/stm32F429_usb_driver.o"
+"Drivers/Src/stm32F429_usb_framework.o"
+"Src/Helpers/logger.o"
+"Src/main.o"
+"Src/systemInit.o"
+"Startup/startup_stm32f429zitx.o"

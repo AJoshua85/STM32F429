@@ -1,0 +1,4 @@
+stm32F429_usb_driver.c:9:6:USB_Gpio_Init	4	static
+stm32F429_usb_driver.c:28:7:USB_Core_Init	4	static
+stm32F429_usb_driver.c:85:7:connect	4	static
+stm32F429_usb_driver.c:94:7:disconnect	4	static
