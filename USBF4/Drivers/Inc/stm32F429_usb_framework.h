@@ -11,5 +11,6 @@
 #include "stm32F429_usb_driver.h"
 
 void USB_Init();
+void usbd_poll();
 
 #endif /* USB_FRAMEWORK_H_ */
