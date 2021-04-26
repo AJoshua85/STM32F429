@@ -1212,7 +1212,7 @@ static void read_packet(void *buffer, uint16_t size)
  80008ee:	60b8      	str	r0, [r7, #8]
 	uint32_t data;
 
-	for(;size >=4; size= -4, buffer +=4)
+	for(;size >=4; size-=4, buffer +=4)
  80008f0:	e00b      	b.n	800090a <read_packet+0x2e>
 	{
 		//Pop 32bit word from the que
@@ -1225,8 +1225,9 @@ static void read_packet(void *buffer, uint16_t size)
  80008f8:	687b      	ldr	r3, [r7, #4]
  80008fa:	68fa      	ldr	r2, [r7, #12]
  80008fc:	601a      	str	r2, [r3, #0]
-	for(;size >=4; size= -4, buffer +=4)
- 80008fe:	f64f 73fc 	movw	r3, #65532	; 0xfffc
+	for(;size >=4; size-=4, buffer +=4)
+ 80008fe:	887b      	ldrh	r3, [r7, #2]
+ 8000900:	3b04      	subs	r3, #4
  8000902:	807b      	strh	r3, [r7, #2]
  8000904:	687b      	ldr	r3, [r7, #4]
  8000906:	3304      	adds	r3, #4
@@ -1377,9 +1378,9 @@ static void USBInterrupt_handler()
  80009d0:	b580      	push	{r7, lr}
  80009d2:	b082      	sub	sp, #8
  80009d4:	af00      	add	r7, sp, #0
-	volatile uint32_t gintstReg = USB_OTG_HS->GINTMSK;
+	volatile uint32_t gintstReg = USB_OTG_HS_GLOBAL->GINTSTS;
  80009d6:	4b24      	ldr	r3, [pc, #144]	; (8000a68 <USBInterrupt_handler+0x98>)
- 80009d8:	699b      	ldr	r3, [r3, #24]
+ 80009d8:	695b      	ldr	r3, [r3, #20]
  80009da:	607b      	str	r3, [r7, #4]
 
 	if(gintstReg & USB_OTG_GINTSTS_USBRST)
@@ -1390,16 +1391,16 @@ static void USBInterrupt_handler()
 	{
 		USBReset_handler();
  80009e6:	f7ff fda5 	bl	8000534 <USBReset_handler>
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_USBRST);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_USBRST);
  80009ea:	4b1f      	ldr	r3, [pc, #124]	; (8000a68 <USBInterrupt_handler+0x98>)
- 80009ec:	699b      	ldr	r3, [r3, #24]
+ 80009ec:	695b      	ldr	r3, [r3, #20]
  80009ee:	4a1e      	ldr	r2, [pc, #120]	; (8000a68 <USBInterrupt_handler+0x98>)
  80009f0:	f443 5380 	orr.w	r3, r3, #4096	; 0x1000
- 80009f4:	6193      	str	r3, [r2, #24]
+ 80009f4:	6153      	str	r3, [r2, #20]
 	}
 	else if (gintstReg & USB_OTG_GINTSTS_OEPINT)
 	{
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_OEPINT);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_OEPINT);
 	}
 }
  80009f6:	e032      	b.n	8000a5e <USBInterrupt_handler+0x8e>
@@ -1410,12 +1411,12 @@ static void USBInterrupt_handler()
  8000a00:	d008      	beq.n	8000a14 <USBInterrupt_handler+0x44>
 		EnumerationDone_handler();
  8000a02:	f7ff fdb1 	bl	8000568 <EnumerationDone_handler>
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_ENUMDNE);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_ENUMDNE);
  8000a06:	4b18      	ldr	r3, [pc, #96]	; (8000a68 <USBInterrupt_handler+0x98>)
- 8000a08:	699b      	ldr	r3, [r3, #24]
+ 8000a08:	695b      	ldr	r3, [r3, #20]
  8000a0a:	4a17      	ldr	r2, [pc, #92]	; (8000a68 <USBInterrupt_handler+0x98>)
  8000a0c:	f443 5300 	orr.w	r3, r3, #8192	; 0x2000
- 8000a10:	6193      	str	r3, [r2, #24]
+ 8000a10:	6153      	str	r3, [r2, #20]
 }
  8000a12:	e024      	b.n	8000a5e <USBInterrupt_handler+0x8e>
 	else if(gintstReg & USB_OTG_GINTSTS_RXFLVL)
@@ -1425,12 +1426,12 @@ static void USBInterrupt_handler()
  8000a1c:	d008      	beq.n	8000a30 <USBInterrupt_handler+0x60>
 		RxFifoNonEmpty_handler();
  8000a1e:	f7ff fdaf 	bl	8000580 <RxFifoNonEmpty_handler>
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_RXFLVL);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_RXFLVL);
  8000a22:	4b11      	ldr	r3, [pc, #68]	; (8000a68 <USBInterrupt_handler+0x98>)
- 8000a24:	699b      	ldr	r3, [r3, #24]
+ 8000a24:	695b      	ldr	r3, [r3, #20]
  8000a26:	4a10      	ldr	r2, [pc, #64]	; (8000a68 <USBInterrupt_handler+0x98>)
  8000a28:	f043 0310 	orr.w	r3, r3, #16
- 8000a2c:	6193      	str	r3, [r2, #24]
+ 8000a2c:	6153      	str	r3, [r2, #20]
 }
  8000a2e:	e016      	b.n	8000a5e <USBInterrupt_handler+0x8e>
 	else if (gintstReg & USB_OTG_GINTSTS_IEPINT)
@@ -1438,12 +1439,12 @@ static void USBInterrupt_handler()
  8000a32:	f403 2380 	and.w	r3, r3, #262144	; 0x40000
  8000a36:	2b00      	cmp	r3, #0
  8000a38:	d006      	beq.n	8000a48 <USBInterrupt_handler+0x78>
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_IEPINT);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_IEPINT);
  8000a3a:	4b0b      	ldr	r3, [pc, #44]	; (8000a68 <USBInterrupt_handler+0x98>)
- 8000a3c:	699b      	ldr	r3, [r3, #24]
+ 8000a3c:	695b      	ldr	r3, [r3, #20]
  8000a3e:	4a0a      	ldr	r2, [pc, #40]	; (8000a68 <USBInterrupt_handler+0x98>)
  8000a40:	f443 2380 	orr.w	r3, r3, #262144	; 0x40000
- 8000a44:	6193      	str	r3, [r2, #24]
+ 8000a44:	6153      	str	r3, [r2, #20]
 }
  8000a46:	e00a      	b.n	8000a5e <USBInterrupt_handler+0x8e>
 	else if (gintstReg & USB_OTG_GINTSTS_OEPINT)
@@ -1451,12 +1452,12 @@ static void USBInterrupt_handler()
  8000a4a:	f403 2300 	and.w	r3, r3, #524288	; 0x80000
  8000a4e:	2b00      	cmp	r3, #0
  8000a50:	d005      	beq.n	8000a5e <USBInterrupt_handler+0x8e>
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_OEPINT);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_OEPINT);
  8000a52:	4b05      	ldr	r3, [pc, #20]	; (8000a68 <USBInterrupt_handler+0x98>)
- 8000a54:	699b      	ldr	r3, [r3, #24]
+ 8000a54:	695b      	ldr	r3, [r3, #20]
  8000a56:	4a04      	ldr	r2, [pc, #16]	; (8000a68 <USBInterrupt_handler+0x98>)
  8000a58:	f443 2300 	orr.w	r3, r3, #524288	; 0x80000
- 8000a5c:	6193      	str	r3, [r2, #24]
+ 8000a5c:	6153      	str	r3, [r2, #20]
 }
  8000a5e:	bf00      	nop
  8000a60:	3708      	adds	r7, #8
