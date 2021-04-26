@@ -9,6 +9,10 @@
 
 #include "logger.h"
 #include "stm32F429_usb_framework.h"
+#include "usb_device.h"
+
+UsbDevice usb_device;
+uint32_t buffer[8];
 
 int main(void)
 {
@@ -24,8 +28,12 @@ int main(void)
 	GPIO_Init(&USBPins);*/
 
 
-	USB_Init();
-	log_info("Program entry point.");
 
-	for(;;);
+	log_info("Program entry point.");
+	usb_device.ptr_out_buffer = &buffer;
+	USB_Init(&usb_device);
+	for(;;)
+	{
+		usbd_poll();
+	}
 }
