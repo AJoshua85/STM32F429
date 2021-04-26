@@ -12,7 +12,6 @@ RM := rm -rf
 -include Src/Helpers/subdir.mk
 -include Src/subdir.mk
 -include Drivers/Src/subdir.mk
--include Drivers/Inc/subdir.mk
 -include subdir.mk
 -include objects.mk
 
