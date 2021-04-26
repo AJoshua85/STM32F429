@@ -468,7 +468,7 @@ static void read_packet(void *buffer, uint16_t size)
 	volatile uint32_t *fifo = FIFO(0);
 	uint32_t data;
 
-	for(;size >=4; size= -4, buffer +=4)
+	for(;size >=4; size-=4, buffer +=4)
 	{
 		//Pop 32bit word from the que
 		data = *(fifo);
@@ -531,30 +531,30 @@ static void write_packet(uint8_t endpoint_num, void const *buffer, uint16_t size
  */
 static void USBInterrupt_handler()
 {
-	volatile uint32_t gintstReg = USB_OTG_HS->GINTMSK;
+	volatile uint32_t gintstReg = USB_OTG_HS_GLOBAL->GINTSTS;
 
 	if(gintstReg & USB_OTG_GINTSTS_USBRST)
 	{
 		USBReset_handler();
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_USBRST);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_USBRST);
 	}
 	else if(gintstReg & USB_OTG_GINTSTS_ENUMDNE)
 	{
 		EnumerationDone_handler();
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_ENUMDNE);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_ENUMDNE);
 	}
 	else if(gintstReg & USB_OTG_GINTSTS_RXFLVL)
 	{
 		RxFifoNonEmpty_handler();
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_RXFLVL);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_RXFLVL);
 	}
 	else if (gintstReg & USB_OTG_GINTSTS_IEPINT)
 	{
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_IEPINT);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_IEPINT);
 	}
 	else if (gintstReg & USB_OTG_GINTSTS_OEPINT)
 	{
-		SET_BIT(USB_OTG_HS->GINTMSK,USB_OTG_GINTSTS_OEPINT);
+		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_OEPINT);
 	}
 }
 const UsbDriver usb_driver = {
