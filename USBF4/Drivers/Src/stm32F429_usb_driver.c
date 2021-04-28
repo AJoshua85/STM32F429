@@ -6,6 +6,7 @@
  */
 #include "stm32F429_usb_driver.h"
 #include "usb_standards.h"
+#include "string.h"
 #include "logger.h"
 
 static void flush_rxfifo();
@@ -16,12 +17,11 @@ static void deconfigure_in_endpoint(uint8_t endpoint_num);
 static void configure_txfifo_size(uint8_t endpoint_num,uint16_t size);
 static void configure_rxfifo_size(uint16_t size);
 static void refresh_fifo_start_addr(void);
-static void USBReset_handler();
-static void EnumerationDone_handler();
+
 
 
 /*******************************************************************
- * @fn				- USB_Gpio_Init
+ * @fn				- USB_Gpio_Init()
  *
  * @brief			- This function Initializes GPIO pin Setting
  * 					  to be configured for USB
@@ -50,7 +50,7 @@ static void USB_Gpio_Init()
 
 }
 /*******************************************************************
- * @fn				- USB_Core_Init
+ * @fn				- USB_Core_Init()
  *
  * @brief			- this function configures USB
  * 					  peripheral settings
@@ -115,7 +115,7 @@ static void USB_Core_Init()
 	 SET_BIT(USB_OTG_HS_DEVICE->DIEPMSK, USB_OTG_DIEPMSK_XFRCM);
 }
 /*******************************************************************
- * @fn				- set_device_addr
+ * @fn				- set_device_addr()
  *
  * @brief			- this function configures USB
  * 					  device address
@@ -129,7 +129,7 @@ static void set_device_addr(uint8_t addr)
 	MODIFY_REG(USB_OTG_HS_DEVICE->DCFG,USB_OTG_DCFG_DAD,_VAL2FLD(USB_OTG_DCFG_DAD,addr));
 }
 /*******************************************************************
- * @fn				- connect
+ * @fn				- connect()
  *
  * @brief			- this function establishes a connection
  * 					  with the USB bus
@@ -147,7 +147,7 @@ static void connect()
 	CLEAR_BIT(USB_OTG_HS_DEVICE->DCTL,USB_OTG_DCTL_SDIS);
 }
 /*******************************************************************
- * @fn				- disconnect
+ * @fn				- disconnect()
  *
  * @brief			- this function removes the connection
  * 					  with the USB bus
@@ -165,7 +165,7 @@ static void disconnect()
 	CLEAR_BIT(USB_OTG_HS->GCCFG,USB_OTG_GCCFG_PWRDWN);
 }
 /*******************************************************************
- * @fn				- flush_rxfifo
+ * @fn				- flush_rxfifo()
  *
  * @brief			- this function flushes the TxFIFO of
  * 					  an OUT endpoint
@@ -179,7 +179,7 @@ static void flush_rxfifo()
 	SET_BIT(USB_OTG_HS->GRSTCTL, USB_OTG_GRSTCTL_RXFFLSH);
 }
 /*******************************************************************
- * @fn				- flush_txfifo
+ * @fn				- flush_txfifo()
  *
  * @brief			- this function flushes the TxFIFO of
  * 					  an IN endpoint
@@ -197,7 +197,7 @@ static void flush_txfifo(uint8_t endpoint_num)
 	SET_BIT(USB_OTG_HS->GRSTCTL,USB_OTG_GRSTCTL_TXFFLSH);
 }
 /*******************************************************************
- * @fn				- config_endpoint0
+ * @fn				- config_endpoint0()
  *
  * @brief			- this function configures USART
  * 					  peripheral settings
@@ -226,7 +226,7 @@ static void config_endpoint0(uint16_t endpoint_size)
 
 }
 /*******************************************************************
- * @fn				- USBReset_handler
+ * @fn				- USBReset_handler()
  *
  * @brief			- this function configures USART
  * 					  peripheral settings
@@ -244,7 +244,7 @@ static void USBReset_handler()
 	}
 }
 /*******************************************************************
- * @fn				- EnumerationDone_handler
+ * @fn				- EnumerationDone_handler()
  *
  * @brief			- this function configures USART
  * 					  peripheral settings
@@ -260,7 +260,7 @@ static void EnumerationDone_handler()
 	config_endpoint0(8);
 }
 /*******************************************************************
- * @fn				- RxFifoNonEmpty_handler
+ * @fn				- RxFifoNonEmpty_handler()
  *
  * @brief			- this function configures USART
  * 					  peripheral settings
@@ -303,6 +303,53 @@ static void RxFifoNonEmpty_handler()
 
 	}
 }
+/*******************************************************************
+ * @fn				- INEndpoint_hander()
+ *
+ * @brief			- this function configures USART
+ * 					  peripheral settings
+ *
+ * @parem[in]		- none
+ * @return			- none
+ * @note			- none
+ */
+static void INEndpoint_hander(void)
+{
+	// Finds the endpoint caused the interrupt.
+	uint8_t endpointNum = ffs(USB_OTG_HS_DEVICE->DAINT) - 1;
+
+	//Check if transfer of given endpoint is completed
+	if (IN_ENDPOINT(endpointNum)->DIEPINT & USB_OTG_DIEPINT_XFRC)
+    {
+        usb_events.on_in_transfer_completed(endpointNum);
+        // Clears the interrupt flag.
+        SET_BIT(IN_ENDPOINT(endpointNum)->DIEPINT, USB_OTG_DIEPINT_XFRC);
+    }
+}
+/*******************************************************************
+ * @fn				- RxFifoNonEmpty_handler
+ *
+ * @brief			- this function configures USART
+ * 					  peripheral settings
+ *
+ * @parem[in]		- none
+ * @return			- none
+ * @note			- none
+ */
+static void OUTEndpoint_hander(void)
+{
+	// Finds the endpoint caused the interrupt.
+	uint8_t endpointNum = ffs(USB_OTG_HS_DEVICE->DAINT >> 16) - 1;
+
+	//Check if transfer of given endpoint is completed
+	if (OUT_ENDPOINT(endpointNum)->DOEPINT & USB_OTG_DOEPINT_XFRC)
+	{
+		usb_events.on_out_transfer_completed(endpointNum);
+	    // Clears the interrupt;
+	    SET_BIT(OUT_ENDPOINT(endpointNum)->DOEPINT, USB_OTG_DOEPINT_XFRC);
+	}
+}
+
 /*******************************************************************
  * @fn				- configure_in_endpoint
  *
@@ -462,7 +509,7 @@ static void configure_rxfifo_size(uint16_t size)
  * @return			- none
  * @note			- none
  */
-static void read_packet(void *buffer, uint16_t size)
+static void read_packet(const void *buffer, uint16_t size)
 {
 	//Only one RxFIFO
 	volatile uint32_t *fifo = FIFO(0);
@@ -550,12 +597,16 @@ static void USBInterrupt_handler()
 	}
 	else if (gintstReg & USB_OTG_GINTSTS_IEPINT)
 	{
+		INEndpoint_hander();
 		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_IEPINT);
 	}
 	else if (gintstReg & USB_OTG_GINTSTS_OEPINT)
 	{
+		OUTEndpoint_hander();
 		SET_BIT(USB_OTG_HS->GINTSTS,USB_OTG_GINTSTS_OEPINT);
 	}
+
+	usb_events.on_usb_polled();
 }
 const UsbDriver usb_driver = {
 		.USB_Core_Init = &USB_Core_Init,

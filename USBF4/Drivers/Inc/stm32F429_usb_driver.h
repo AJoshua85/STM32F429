@@ -44,7 +44,7 @@ typedef struct
 	void (*flush_txfifo)(uint8_t endpoint_num);
 	void (*configure_in_endpoint)(uint8_t endpoint_num,enum UsbEndpointType endpoint_type, uint16_t endpoint_size);
 	void (*write_packet)(uint8_t endpoint_num, void const *buffer, uint16_t size);
-	void (*read_packet)(void *buffer, uint16_t size);
+	void (*read_packet)(const void *buffer, uint16_t size);
 	void (*poll)();
 }UsbDriver;
 
