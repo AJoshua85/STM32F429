@@ -58,7 +58,19 @@ static void process_standard_device_request()
 					usbd_handle->control_transfer_stage = USB_CONTROL_STAGE_STATUS_IN;
 					break;
 			}
-		break;
+			break;
+
+		case USB_STANDARD_SET_ADDRESS:
+			log_info("Standard Set Address request received");
+			const uint16_t deviceAddr = request->wValue;
+			usb_driver.set_device_addr(deviceAddr);
+			log_info("Switching control stage to IN-STATUS.");
+			usbd_handle->device_state = USB_CONTROL_STAGE_STATUS_IN;
+			break;
+
+
+
+
 	}
 }
 
@@ -140,11 +152,11 @@ static void process_control_transfer_stage()
 			usbd_handle->control_transfer_stage = USB_CONTROL_STAGE_SETUP;
 			break;
 
-		case USB_CONTROL_STAGE_DATA_IN_ZERO:
+		case USB_CONTROL_STAGE_STATUS_IN:
+			usb_driver.write_packet(0,NULL,0);
 			log_info("Switching control stage to Setup");
 			usbd_handle->control_transfer_stage = USB_CONTROL_STAGE_SETUP;
 			break;
-
 	}
 }
 
