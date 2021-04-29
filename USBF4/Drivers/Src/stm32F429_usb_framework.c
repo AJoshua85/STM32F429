@@ -42,9 +42,9 @@ static void process_standard_device_request()
 	{
 		case USB_STANDARD_GET_DESCRIPTOR:
 
-			log_info("Standard get descriptor request received.");
+			log_info("Standard Get Descriptor request received.");
 			const uint8_t descriptorType = request->wValue >> 8;
-			const uint8_t descriptorLength = request->wLength;
+			const uint16_t descriptorLength = request->wLength;
 
 			switch(descriptorType)
 			{
@@ -55,26 +55,24 @@ static void process_standard_device_request()
 					usbd_handle->in_data_size = descriptorLength;
 
 					log_info("Switching control stage to IN-DATA.");
-					usbd_handle->control_transfer_stage = USB_CONTROL_STAGE_STATUS_IN;
+					usbd_handle->control_transfer_stage = USB_CONTROL_STAGE_DATA_IN;
 					break;
 			}
 			break;
-
+		/*
 		case USB_STANDARD_SET_ADDRESS:
 			log_info("Standard Set Address request received");
 			const uint16_t deviceAddr = request->wValue;
 			usb_driver.set_device_addr(deviceAddr);
 			log_info("Switching control stage to IN-STATUS.");
 			usbd_handle->device_state = USB_CONTROL_STAGE_STATUS_IN;
-			break;
+			break;*/
 
 
 
 
 	}
 }
-
-
 /*******************************************************************
  * @fn				- process_request()
  *
@@ -88,7 +86,7 @@ static void process_standard_device_request()
 static void process_request()
 {
 	UsbRequest const * request = usbd_handle->ptr_out_buffer;
-	switch(request->bmRequestType & (USB_BM_REQUEST_TYPE_DIRECTION_MASK | USB_BM_REQUEST_TYPE_RECIPIENT_MASK ))
+	switch(request->bmRequestType & (USB_BM_REQUEST_TYPE_TYPE_MASK | USB_BM_REQUEST_TYPE_RECIPIENT_MASK ))
 	{
 		case ( USB_BM_REQUEST_TYPE_TYPE_STANDARD | USB_BM_REQUEST_TYPE_RECIPIENT_DEVICE ):
 				process_standard_device_request();
@@ -217,8 +215,7 @@ static void setup_data_received_handler(uint8_t endpointNum, uint16_t byte_count
 /*******************************************************************
  * @fn				- in_transfer_completed_handler()
  *
- * @brief			- this function checks if there is data left
- * 					  to be read and switches the control stage
+ * @brief			- this function checks if transfer is completed on INEndpoint
  *
  * @parem[in]		- endpoint number
  * @return			- none
@@ -227,6 +224,7 @@ static void setup_data_received_handler(uint8_t endpointNum, uint16_t byte_count
 
 static void in_transfer_completed_handler(uint8_t endpointNum)
 {
+	//Last transfer completed
 	if(usbd_handle->in_data_size)
 	{
 		log_info("Switching control stage to IN-Data");

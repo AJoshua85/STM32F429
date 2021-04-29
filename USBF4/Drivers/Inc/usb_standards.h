@@ -42,8 +42,8 @@ typedef enum
 	USB_CONTROL_STAGE_DATA_IN,
 	USB_CONTROL_STAGE_DATA_IN_IDLE,//used when the last piece of data is sent (device->host) when data < max packet size (ie 32bit)??
 	USB_CONTROL_STAGE_DATA_IN_ZERO,//used when the last piece of data is sent (device->host) when data = max packet size (ie 32bit)??
-	USB_CONTROL_STAGE_STATUS_OUT,// Used when the last data piece is sent? (status stage is the always opposite of data stage)
-	USB_CONTROL_STAGE_STATUS_IN// Used when the last data piece is received?
+	USB_CONTROL_STAGE_STATUS_OUT,// Used when the last data piece is received? (status stage is the always opposite of data stage)
+	USB_CONTROL_STAGE_STATUS_IN// Used when the last data piece is sent?
 } UsbControlTransferStage;
 /*Note status stage sends zero length data packet*/
 /** \brief USB control request. */
@@ -55,7 +55,7 @@ typedef struct
 	uint16_t wValue; // Parameter passed to the device
 	uint16_t wIndex; // Parameter passed to the device
 	uint16_t wLength; // The count of bytes that will be transmitted in the data data stage
-} UsbRequest;
+}UsbRequest;
 
 /**\brief USB device descriptor. */
 typedef struct {

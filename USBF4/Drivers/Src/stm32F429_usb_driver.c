@@ -242,6 +242,7 @@ static void USBReset_handler()
 	{
 		deconfigure_in_endpoint(i);
 	}
+	usb_events.on_usb_reset_received();
 }
 /*******************************************************************
  * @fn				- EnumerationDone_handler()
