@@ -12,6 +12,7 @@ RM := rm -rf
 -include Src/Helpers/subdir.mk
 -include Src/subdir.mk
 -include Drivers/Src/subdir.mk
+-include Drivers/Inc/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -41,8 +42,8 @@ USBF4.bin \
 all: USBF4.elf secondary-outputs
 
 # Tool invocations
-USBF4.elf: $(OBJS) $(USER_OBJS) C:\Users\Avinash\ J\STM32CubeIDE\USB_Prog\USBF4\STM32F429ZITX_FLASH.ld
-	arm-none-eabi-gcc -o "USBF4.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Avinash J\STM32CubeIDE\USB_Prog\USBF4\STM32F429ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="USBF4.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+USBF4.elf: $(OBJS) $(USER_OBJS) C:\Users\Avinash\STM32CubeIDE\STM32F429\USBF4\STM32F429ZITX_FLASH.ld
+	arm-none-eabi-gcc -o "USBF4.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Avinash\STM32CubeIDE\STM32F429\USBF4\STM32F429ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="USBF4.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

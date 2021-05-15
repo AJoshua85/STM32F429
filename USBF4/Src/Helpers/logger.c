@@ -8,6 +8,8 @@
 /** \brief Redirects `printf()` output to the serial wire out (SWO).
  * This function overrides a weak function symbol and is not to be used directly.
  */
+
+
 int _write(int file, char *ptr, int len)
 {
   int i=0;
@@ -34,6 +36,7 @@ char const * const _get_log_level_string(LogLvl const log_level)
 
 static void _log(LogLvl const log_level, char const * const format, va_list args)
 {
+
     if (log_level > system_log_level)
     {
     	return;

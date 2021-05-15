@@ -5,8 +5,10 @@
  *      Author: Avinash J
  */
 
-#ifndef INC_USB_DEVICE_H_
-#define INC_USB_DEVICE_H_
+#ifndef USB_DEVICE_H_
+#define USB_DEVICE_H_
+
+#include "usb_standards.h"
 
 typedef struct
 {
@@ -26,5 +28,4 @@ typedef struct
 	/**@}*/
 } UsbDevice;
 
-
-#endif /* INC_USB_DEVICE_H_ */
+#endif /* USB_DEVICE_H_ */
